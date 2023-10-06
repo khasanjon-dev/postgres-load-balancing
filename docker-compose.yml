@@ -3,61 +3,19 @@ version: "3.8"
 services:
   pgprimary:
     container_name: base_postgres
-    image: bitnami/postgresql
-    ports:
-      - 5432
-    volumes:
-      - pgprimary_data:/bitnami/postgresql
-    environment:
-      - POSTGRESQL_REPLICATION_MODE=master
-      - POSTGRESQL_REPLICATION_USER=postgres
-      - POSTGRESQL_REPLICATION_PASSWORD=1
-      - POSTGRESQL_PASSWORD=1
-      - POSTGRESQL_DATABASE=test_db
-  pgreplica:
-    image: bitnami/postgresql
-    ports:
-      - 5432
-    depends_on:
-      - pgprimary
-    environment:
-      - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=postgres
-      - POSTGRESQL_REPLICATION_PASSWORD=1
-      - POSTGRESQL_MASTER_HOST=pgprimary
-      - POSTGRESQL_PASSWORD=1
-  pgreplica1:
-    image: bitnami/postgresql
-    ports:
-      - 5432
-    depends_on:
-      - pgprimary
-    environment:
-      - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=postgres
-      - POSTGRESQL_REPLICATION_PASSWORD=1
-      - POSTGRESQL_MASTER_HOST=pgprimary
-      - POSTGRESQL_PASSWORD=1
-
-  pgpool:
-    image: bitnami/pgpool
+    image: postgres:15.3
     ports:
       - 5432:5432
-    depends_on:
-      - pgprimary
+    volumes:
+      - base_data:/var/lib/postgresql/data
     environment:
-      - PGPOOL_BACKEND_NODES=0:pgprimary:5432:0:primary:ALWAYS_PRIMARY,1:pgreplica:5432:5:replica,2:pgreplica1:5432:5:replica
-      - PGPOOL_POSTGRES_USERNAME=postgres
-      - PGPOOL_POSTGRES_PASSWORD=1
-      - PGPOOL_ADMIN_USERNAME=admin
-      - PGPOOL_ADMIN_PASSWORD=1
-      - PGPOOL_ENABLE_LOAD_BALANCING=yes
-      - PGPOOL_ENABLE_STATEMENT_LOAD_BALANCING=yes
-      - PGPOOL_NUM_INIT_CHILDREN=10
-      - PGPOOL_MAX_POOL=10000
-      - PGPOOL_SR_CHECK_USER=postgres
-      - PGPOOL_SR_CHECK_PASSWORD=1
+      - POSTGRES_REPLICATION_MODE=master
+      - POSTGRES_REPLICATION_USER=postgres
+      - POSTGRES_REPLICATION_PASSWORD=1
+      - POSTGRES_PASSWORD=1
+      - POSTGRES_DB=test_db
+
 volumes:
-  pgprimary_data:
+  base_data:
     external: true
-    name: pgprimary_data
+    name: base_data
